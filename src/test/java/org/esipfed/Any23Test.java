@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 
 import org.apache.any23.Any23;
@@ -44,37 +43,55 @@ public class Any23Test {
 
   @Test
   public final void testAny23DataExtraction() throws IOException, ExtractionException, URISyntaxException {
+    //define the Apache Any23 facade instance. The constructor allows to enforce the usage of specific extractors.
     Any23 runner = new Any23();
+    //define the FileDocumentSource for local data collection, set a default URI
     DocumentSource source = new FileDocumentSource(
             new File(getClass().getClassLoader().getResource("AQUARIUS_L3_SSS_CAP_7DAY_V4.xhtml").toURI()), 
             "https://podaac.jpl.nasa.gov/dataset/AQUARIUS_L3_SSS_CAP_7DAY_V4");
+    //define a buffered output stream used to store data produced by the TripleHandler defined at following line
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     TripleHandler handler = new JSONWriter(baos);
+    //define an additional TripleHandler implementation for simply counting exracted triples
     CountingTripleHandler cHandler = new CountingTripleHandler(true);
-    //execute extracting using JSONWriter
+
+    //execute metadata extraction using JSONWriter.
+    //the produced metadata will be written within the passed TripleHandler instance.
     try {
       runner.extract(source, handler);
     } finally {
+      //the TripleHandler needs to be explicitly closed
       try {
         handler.close();
       } catch (TripleHandlerException e) {
         e.printStackTrace();
       }
     }
+    //print triples extraction to std out
     System.out.print(baos.toString("UTF-8") + "\n");
 
     //execute extraction using CountingTripleHandler for triple count verification
     try {
       runner.extract(source, cHandler);
     } finally {
+      //the TripleHandler needs to be explicitly closed
       try {
         cHandler.close();
       } catch (TripleHandlerException e) {
         e.printStackTrace();
       }
     }
-
+    //execute simple triple count verification
     assertEquals(16, cHandler.getCount());
   }
 
+  // We could also implement tests for
+  // * Data Conversion
+  // * Validation and Fixing
+  // * Custom XPath extractions
+  // * Microformat extractions (e.g. nesting of Microdata, HCard, VCard, etc.)
+  // * Microdata extraction
+  // * CSV extractions from drone data...
+  //
+  // for more information visit http://any23.apache.org/developers.html
 }

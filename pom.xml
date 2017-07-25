@@ -26,6 +26,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <commons-rdf.version>0.3.0-incubating</commons-rdf.version>
   </properties>
 
   <dependencies>
@@ -38,7 +41,13 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-rdf-api</artifactId>
-      <version>0.3.0-incubating</version>
+      <version>${commons-rdf.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-rdf-jsonld-java</artifactId>
+      <version>${commons-rdf.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
