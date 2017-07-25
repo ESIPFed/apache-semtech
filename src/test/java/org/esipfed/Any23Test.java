@@ -13,13 +13,24 @@
  */
 package org.esipfed;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
+
+import org.apache.any23.Any23;
+import org.apache.any23.extractor.ExtractionException;
+import org.apache.any23.source.DocumentSource;
+import org.apache.any23.source.FileDocumentSource;
+import org.apache.any23.writer.CountingTripleHandler;
+import org.apache.any23.writer.JSONWriter;
+import org.apache.any23.writer.TripleHandler;
+import org.apache.any23.writer.TripleHandlerException;
 import org.junit.Test;
+
 
 /**
  * Some examples of how one would utilize the Any23 API for parsing and extracting explicit, 
@@ -31,37 +42,39 @@ import org.junit.Test;
  */
 public class Any23Test {
 
-  /**
-   * @throws java.lang.Exception
-   */
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  /**
-   * @throws java.lang.Exception
-   */
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
-
-  /**
-   * @throws java.lang.Exception
-   */
-  @Before
-  public void setUp() throws Exception {
-  }
-
-  /**
-   * @throws java.lang.Exception
-   */
-  @After
-  public void tearDown() throws Exception {
-  }
-
   @Test
-  public final void test() {
-    fail("Not yet implemented"); // TODO
+  public final void testAny23DataExtraction() throws IOException, ExtractionException, URISyntaxException {
+    Any23 runner = new Any23();
+    DocumentSource source = new FileDocumentSource(
+            new File(getClass().getClassLoader().getResource("AQUARIUS_L3_SSS_CAP_7DAY_V4.xhtml").toURI()), 
+            "https://podaac.jpl.nasa.gov/dataset/AQUARIUS_L3_SSS_CAP_7DAY_V4");
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    TripleHandler handler = new JSONWriter(baos);
+    CountingTripleHandler cHandler = new CountingTripleHandler(true);
+    //execute extracting using JSONWriter
+    try {
+      runner.extract(source, handler);
+    } finally {
+      try {
+        handler.close();
+      } catch (TripleHandlerException e) {
+        e.printStackTrace();
+      }
+    }
+    System.out.print(baos.toString("UTF-8") + "\n");
+
+    //execute extraction using CountingTripleHandler for triple count verification
+    try {
+      runner.extract(source, cHandler);
+    } finally {
+      try {
+        cHandler.close();
+      } catch (TripleHandlerException e) {
+        e.printStackTrace();
+      }
+    }
+
+    assertEquals(16, cHandler.getCount());
   }
 
 }

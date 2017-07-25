@@ -19,6 +19,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -66,6 +67,7 @@ public class CommonsRDFTest {
   }
 
   @Test
+  @Ignore
   public final void test() {
     fail("Not yet implemented"); // TODO
   }
